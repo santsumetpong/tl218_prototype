@@ -176,6 +176,18 @@ void checkFault() {
   } else if (!pinFaulted1a && faultActive1a) {
     faultActive1a = false;
     targetAngle1a = HOME_ANGLE;
+    digitalWrite(Pole_1, HIGH);
+    digitalWrite(Pole_2, HIGH);
+    digitalWrite(Pole_3, HIGH);
+    digitalWrite(Pole_4, LOW);
+    digitalWrite(Pole_5, HIGH);
+    digitalWrite(Pole_6, HIGH);
+    digitalWrite(WTP, HIGH);
+    digitalWrite(House_1, HIGH);
+    digitalWrite(House_2, HIGH);
+    digitalWrite(House_3, HIGH);
+    digitalWrite(House_4, HIGH);
+    digitalWrite(House_5, HIGH);
   }
 
   // ── Zone 1b ──
@@ -198,6 +210,18 @@ void checkFault() {
   } else if (!pinFaulted1b && faultActive1b) {
     faultActive1b = false;
     targetAngle1b = HOME_ANGLE;
+    digitalWrite(Pole_1, LOW);
+    digitalWrite(Pole_2, LOW);
+    digitalWrite(Pole_3, HIGH);
+    digitalWrite(Pole_4, HIGH);
+    digitalWrite(Pole_5, HIGH);
+    digitalWrite(Pole_6, HIGH);
+    digitalWrite(WTP, HIGH);
+    digitalWrite(House_1, HIGH);
+    digitalWrite(House_2, HIGH);
+    digitalWrite(House_3, HIGH);
+    digitalWrite(House_4, HIGH);
+    digitalWrite(House_5, HIGH);
   }
 
   // ── Zone 2 ──
@@ -220,6 +244,18 @@ void checkFault() {
   } else if (!pinFaulted2 && faultActive2) {
     faultActive2 = false;
     targetAngle2 = HOME_ANGLE;
+    digitalWrite(Pole_1, LOW);
+    digitalWrite(Pole_2, LOW);
+    digitalWrite(Pole_3, HIGH);
+    digitalWrite(Pole_4, HIGH);
+    digitalWrite(Pole_5, HIGH);
+    digitalWrite(Pole_6, HIGH);
+    digitalWrite(WTP, HIGH);
+    digitalWrite(House_1, HIGH);
+    digitalWrite(House_2, HIGH);
+    digitalWrite(House_3, HIGH);
+    digitalWrite(House_4, HIGH);
+    digitalWrite(House_5, HIGH);
   }
 }
 
