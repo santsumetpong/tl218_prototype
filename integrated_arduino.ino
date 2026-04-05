@@ -25,17 +25,17 @@
 #include <Servo.h>
 
 // ── Pin assignments ────────────────────────────────────────────────
-const int ZONE1A_PIN = A0;
-const int ZONE1B_PIN = A1;
-const int ZONE2_PIN  = A5;
-const int SERVO_PIN1A = A4;
-const int SERVO_PIN1B = A3;
-const int SERVO_PIN2  = A2;
+const int SWITCH_1 = A0;
+const int SWITCH_2 = A1;
+const int SWITCH_3  = A2;
+const int SERVO_1 = A3;
+const int SERVO_2 = A4;
+const int SERVO_3  = A5;
 
 // ── Servo parameters ───────────────────────────────────────────────
 const int MIN_ANGLE   = 0;
 const int MAX_ANGLE   = 90;
-const int FAULT_ANGLE = 60;
+const int FAULT_ANGLE = 30;
 const int HOME_ANGLE  = 0;
 const int STEP_DELAY  = 5;   // ms between each 1° step — increase to slow down further
 
@@ -57,18 +57,18 @@ bool faultActive2  = false;
 
 // ══════════════════════════════════════════════════════════════════
 void setup() {
-  pinMode(ZONE1A_PIN, INPUT_PULLUP);
-  pinMode(ZONE1B_PIN, INPUT_PULLUP);
-  pinMode(ZONE2_PIN,  INPUT_PULLUP);
+  pinMode(SWITCH_1, INPUT_PULLUP);
+  pinMode(SWITCH_2, INPUT_PULLUP);
+  pinMode(SERVO_3,  INPUT_PULLUP);
   Serial.begin(9600);
 
-  servoTree1a.attach(SERVO_PIN1A);
+  servoTree1a.attach(SERVO_2);
   servoTree1a.write(HOME_ANGLE);
 
-  servoTree1b.attach(SERVO_PIN1B);
+  servoTree1b.attach(SERVO_1);
   servoTree1b.write(HOME_ANGLE);
 
-  servoTree2.attach(SERVO_PIN2);
+  servoTree2.attach(SWITCH_3);
   servoTree2.write(HOME_ANGLE);
 
   Serial.println("=== Fault Detection + Servo Control ===");
@@ -120,9 +120,9 @@ void stepTowardsTarget() {
 // Fault detection — trips or clears servo targets
 // ══════════════════════════════════════════════════════════════════
 void checkFault() {
-  bool pinFaulted1a = (digitalRead(ZONE1A_PIN) == LOW);
-  bool pinFaulted1b = (digitalRead(ZONE1B_PIN) == LOW);
-  bool pinFaulted2  = (digitalRead(ZONE2_PIN)  == LOW);
+  bool pinFaulted1a = (digitalRead(SWITCH_1) == LOW);
+  bool pinFaulted1b = (digitalRead(SWITCH_2) == LOW);
+  bool pinFaulted2  = (digitalRead(SERVO_3)  == LOW);
 
   // ── Zone 1a ──
   if (pinFaulted1a && !faultActive1a) {
