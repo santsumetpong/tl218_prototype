@@ -24,25 +24,25 @@
 
 #include <Servo.h>
 
-#define Pole_1 D11 // Between sub and islanding point
-#define Pole_2 D1 // Between sub and islanding point
-#define Pole_3 D2 // Islanding pole
-#define Pole_4 D3 // BESS pole
-#define Pole_5 D4 // End of zone 1
-#define Pole_6 D5 // Zone 2
-#define WTP D7 // Water treatment plant
-#define House_1 D6 // Misc load 1
-#define House_2 D8 // Misc load 2
-#define House_3 D9 // Residential area
-#define House_4 D10 // Residential area
-#define House_5 D0 // Residential area
+#define Pole_1 13 // Between sub and islanding point
+#define Pole_2 3 // Between sub and islanding point
+#define Pole_3 4 // Islanding pole
+#define Pole_4 5 // BESS pole
+#define Pole_5 6 // End of zone 1
+#define Pole_6 7 // Zone 2
+#define WTP 9 // Water treatment plant
+#define House_1 8 // Misc load 1
+#define House_2 10 // Misc load 2
+#define House_3 11 // Residential area
+#define House_4 12 // Residential area
+#define House_5 2 // Residential area
 
 // ── Pin assignments ────────────────────────────────────────────────
 const int Switch_1 = A0;
 const int Switch_2 = A1;
 const int Switch_3  = A2;
-const int Servo_1 = A3;
-const int Servo_2 = A4;
+const int Servo_1 = A4;
+const int Servo_2 = A3;
 const int Servo_3  = A5;
 
 // ── Servo parameters ───────────────────────────────────────────────
@@ -100,7 +100,7 @@ void setup() {
   
   pinMode(Switch_1, INPUT_PULLUP);
   pinMode(Switch_2, INPUT_PULLUP);
-  pinMode(Servo_3,  INPUT_PULLUP);
+  pinMode(Switch_3,  INPUT_PULLUP);
 
   servoTree1a.attach(Servo_2);
   servoTree1a.write(HOME_ANGLE);
@@ -108,7 +108,7 @@ void setup() {
   servoTree1b.attach(Servo_1);
   servoTree1b.write(HOME_ANGLE);
 
-  servoTree2.attach(Switch_3);
+  servoTree2.attach(Servo_3);
   servoTree2.write(HOME_ANGLE);
 
 }
@@ -153,13 +153,14 @@ void stepTowardsTarget() {
 void checkFault() {
   bool pinFaulted1a = (digitalRead(Switch_1) == LOW);
   bool pinFaulted1b = (digitalRead(Switch_2) == LOW);
-  bool pinFaulted2  = (digitalRead(Servo_3)  == LOW);
+  bool pinFaulted2  = (digitalRead(Switch_3)  == LOW);
 
   // ── Zone 1a ──
-  if (pinFaulted1a && !faultActive1a) {
+  if (pinFaulted1a && !faultActive1a) {  
     faultActive1a = true;
     targetAngle1a = FAULT_ANGLE;
     // Microgrid in islanded operation
+    delay(1000);
     digitalWrite(Pole_1, LOW);
     digitalWrite(Pole_2, LOW);
     digitalWrite(Pole_3, HIGH);
@@ -181,6 +182,7 @@ void checkFault() {
   if (pinFaulted1b && !faultActive1b) {
     faultActive1b = true;
     targetAngle1b = FAULT_ANGLE;
+    delay(1000);
     digitalWrite(Pole_1, LOW);
     digitalWrite(Pole_2, LOW);
     digitalWrite(Pole_3, LOW);
@@ -202,6 +204,7 @@ void checkFault() {
   if (pinFaulted2 && !faultActive2) {
     faultActive2 = true;
     targetAngle2 = FAULT_ANGLE;
+    delay(1000);
     digitalWrite(Pole_1, LOW);
     digitalWrite(Pole_2, LOW);
     digitalWrite(Pole_3, HIGH);
