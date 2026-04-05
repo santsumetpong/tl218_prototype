@@ -25,16 +25,152 @@
 #include <Servo.h>
 
 // ── Pin assignments ────────────────────────────────────────────────
-const int SWITCH_1 = A0;
-const int SWITCH_2 = A1;
-const int SWITCH_3  = A2;
-const int SERVO_1 = A3;
-const int SERVO_2 = A4;
-const int SERVO_3  = A5;
+const int Switch_1 = A0;
+const int Switch_2 = A1;
+const int Switch_3  = A2;
+const int Servo_1 = A3;
+const int Servo_2 = A4;
+const int Servo_3  = A5;
 
 // ── Servo parameters ───────────────────────────────────────────────
 const int MIN_ANGLE   = 0;
 const int MAX_ANGLE   = 90;
+const int FAULT_ANGLE = 30;
+const int HOME_ANGLE  = 0;
+const int STEP_DELAY  = 5;   // ms between each 1° step — increase to slow down further
+
+// ── State variables ────────────────────────────────────────────────
+Servo servoTree1a;
+Servo servoTree1b;
+Servo servoTree2;
+
+int  currentAngle1a = HOME_ANGLE;
+int  targetAngle1a  = HOME_ANGLE;
+int  currentAngle1b = HOME_ANGLE;
+int  targetAngle1b  = HOME_ANGLE;
+int  currentAngle2  = HOME_ANGLE;
+int  targetAngle2   = HOME_ANGLE;
+
+bool faultActive1a = false;
+bool faultActive1b = false;
+bool faultActive2  = false;
+
+// ══════════════════════════════════════════════════════════════════
+void setup() {
+  pinMode(Switch_1, INPUT_PULLUP);
+  pinMode(Switch_2, INPUT_PULLUP);
+  pinMode(Servo_3,  INPUT_PULLUP);
+  Serial.begin(9600);
+
+  servoTree1a.attach(Servo_2);
+  servoTree1a.write(HOME_ANGLE);
+
+  servoTree1b.attach(Servo_1);
+  servoTree1b.write(HOME_ANGLE);
+
+  servoTree2.attach(Switch_3);
+  servoTree2.write(HOME_ANGLE);
+
+}
+
+// ══════════════════════════════════════════════════════════════════
+void loop() {
+  checkFault();
+  stepTowardsTarget();
+  delay(10);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Moves one degree toward targetAngle each call
+// ══════════════════════════════════════════════════════════════════
+void stepTowardsTarget() {
+  bool moved = false;
+
+  if (currentAngle1a != targetAngle1a) {
+    currentAngle1a += (currentAngle1a < targetAngle1a) ? 1 : -1;
+    servoTree1a.write(currentAngle1a);
+    moved = true;
+  }
+
+  if (currentAngle1b != targetAngle1b) {
+    currentAngle1b += (currentAngle1b < targetAngle1b) ? 1 : -1;
+    servoTree1b.write(currentAngle1b);
+    moved = true;
+  }
+
+  if (currentAngle2 != targetAngle2) {
+    currentAngle2 += (currentAngle2 < targetAngle2) ? 1 : -1;
+    servoTree2.write(currentAngle2);
+    moved = true;
+  }
+
+  if (moved) delay(STEP_DELAY);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Fault detection — trips or clears servo targets
+// ══════════════════════════════════════════════════════════════════
+void checkFault() {
+  bool pinFaulted1a = (digitalRead(Switch_1) == LOW);
+  bool pinFaulted1b = (digitalRead(Switch_2) == LOW);
+  bool pinFaulted2  = (digitalRead(Servo_3)  == LOW);
+
+  // ── Zone 1a ──
+  if (pinFaulted1a && !faultActive1a) {
+    faultActive1a = true;
+    targetAngle1a = FAULT_ANGLE;
+  } else if (!pinFaulted1a && faultActive1a) {
+    faultActive1a = false;
+    targetAngle1a = HOME_ANGLE;
+  }
+
+  // ── Zone 1b ──
+  if (pinFaulted1b && !faultActive1b) {
+    faultActive1b = true;
+    targetAngle1b = FAULT_ANGLE;
+  } else if (!pinFaulted1b && faultActive1b) {
+    faultActive1b = false;
+    targetAngle1b = HOME_ANGLE;
+  }
+
+  // ── Zone 2 ──
+  if (pinFaulted2 && !faultActive2) {
+    faultActive2 = true;
+    targetAngle2 = FAULT_ANGLE;
+  } else if (!pinFaulted2 && faultActive2) {
+    faultActive2 = false;
+    targetAngle2 = HOME_ANGLE;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// Serial command handler
+// ══════════════════════════════════════════════════════════════════
+/*
+void handleSerial() {
+  if (Serial.available() == 0) return;
+
+  String input = Serial.readStringUntil('\n');
+  input.trim();
+
+  if (input == "r") {
+    targetAngle = HOME_ANGLE;
+    Serial.println("Target: home (0 deg)");
+  } else if (input == "c") {
+    targetAngle = 45;
+    Serial.println("Target: center (45 deg)");
+  } else {
+    int angle = input.toInt();
+    if (angle >= MIN_ANGLE && angle <= MAX_ANGLE) {
+      targetAngle = angle;
+      Serial.print("Target: ");
+      Serial.println(angle);
+    } else {
+      Serial.println("Invalid. Enter 0-90, 'r', or 'c'.");
+    }
+  }
+}
+*/const int MAX_ANGLE   = 90;
 const int FAULT_ANGLE = 30;
 const int HOME_ANGLE  = 0;
 const int STEP_DELAY  = 5;   // ms between each 1° step — increase to slow down further
